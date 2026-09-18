@@ -56,14 +56,13 @@
           <uap3:AppExtension
             Name="com.microsoft.windows.widgets.feeds"
             DisplayName="Mis Widgets Feed"
-            Id="MisWidgetsFeedAppExtension"
+            Id="MisWidgetsFeedProvider"
             PublicFolder="Public">
             <uap3:Properties>
               <FeedProvider
-                Id="MisWidgetsFeedProvider"
-                DisplayName="Mis Widgets Feed"
+                SettingsUri="https://josem404.github.io/Mis_widgets_feed/"
                 Description="Panel web personal y extensible"
-                Icon="ms-appx:Images\StoreLogo.png">
+                Icon="Images\StoreLogo.png">
                 <Activation>
                   <CreateInstance ClassId="a5194794-89bf-4fd1-b5c4-8d1fb860992c" />
                 </Activation>
@@ -73,7 +72,8 @@
                     DisplayName="Mis Feed"
                     Description="Base experimental del panel personal"
                     ContentUri="https://josem404.github.io/Mis_widgets_feed/"
-                    Icon="ms-appx:Images\StoreLogo.png" />
+                    AllowMultiple="false"
+                    Icon="Images\StoreLogo.png" />
                 </Definitions>
               </FeedProvider>
             </uap3:Properties>

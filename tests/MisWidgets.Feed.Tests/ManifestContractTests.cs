@@ -21,11 +21,19 @@ public sealed class ManifestContractTests
         Assert.Equal(
             "com.microsoft.windows.widgets.feeds",
             RequiredAttribute(appExtension, "Name"));
-        Assert.Equal(FeedIdentifiers.FeedProviderId, RequiredAttribute(provider, "Id"));
+        Assert.Equal(FeedIdentifiers.FeedProviderId, RequiredAttribute(appExtension, "Id"));
+        Assert.Null(provider.Attribute("Id"));
+        Assert.Null(provider.Attribute("DisplayName"));
+        Assert.Equal(
+            "https://josem404.github.io/Mis_widgets_feed/",
+            RequiredAttribute(provider, "SettingsUri"));
+        Assert.Equal("Images\\StoreLogo.png", RequiredAttribute(provider, "Icon"));
         Assert.Equal(FeedIdentifiers.FeedDefinitionId, RequiredAttribute(definition, "Id"));
         Assert.Equal(
             "https://josem404.github.io/Mis_widgets_feed/",
             RequiredAttribute(definition, "ContentUri"));
+        Assert.Equal("false", RequiredAttribute(definition, "AllowMultiple"));
+        Assert.Equal("Images\\StoreLogo.png", RequiredAttribute(definition, "Icon"));
     }
 
     [Fact]
