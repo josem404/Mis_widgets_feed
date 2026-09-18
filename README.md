@@ -53,6 +53,13 @@ convertirse en una operación del sistema.
 
 Requiere Node.js 24.
 
+La preparación reproducible de la copia WSL instala Node 24 para Linux y un SDK .NET 10
+aislado como `dotnet10`, sin reemplazar el runtime .NET 8 usado por las pruebas del núcleo:
+
+```bash
+sudo ./tools/bootstrap-wsl.sh
+```
+
 ```bash
 cd web
 npm ci
@@ -130,4 +137,3 @@ El provider escribe un log rotatorio de hasta 1 MiB en:
 El self-test escribe `LocalState\selftest.txt`. Los objetos recibidos en callbacks WinRT no
 se conservan fuera de la llamada y el proceso permanece bloqueado sin consumo activo hasta
 que el host deshabilita todos los feeds del provider.
-
