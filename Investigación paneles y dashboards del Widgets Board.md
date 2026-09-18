@@ -2,10 +2,10 @@
 
 > Investigación documental realizada el 2026-09-18.
 >
-> Esta sesión es exclusivamente de investigación. No se modifica la implementación
-> existente de Mis Widgets. Las conclusiones distinguen entre lo que Microsoft documenta,
-> lo que se deduce razonablemente de esa documentación y lo que todavía requiere una
-> prueba nativa en un Windows elegible.
+> El documento comenzó como investigación exclusivamente documental y se amplió después
+> con resultados de una implementación independiente. No modifica la implementación de
+> Mis Widgets. Las conclusiones distinguen entre documentación oficial, inferencias y
+> pruebas observadas en un Windows elegible.
 
 ## 1. Conclusión ejecutiva
 
@@ -88,9 +88,13 @@ Un `FeedProvider` se registra mediante la extensión de paquete:
 </uap3:Extension>
 ```
 
-El XML anterior es un esquema ilustrativo, no una modificación propuesta para el
-proyecto: el CLSID, las rutas de assets, el host web y el modelo de seguridad todavía no
-están decididos.
+El XML anterior reproduce la forma publicada en la documentación, pero la prueba real
+en Windows 10.0.26340 mostró una diferencia importante: el host instalado tomó el ID del
+provider del `Id` de `uap3:AppExtension` y aceptó iconos relativos al paquete; la variante
+con la identidad repetida dentro de `FeedProvider` no apareció en el Board. El manifiesto
+operativo del proyecto es, por tanto, la evidencia válida para esta build concreta. Esta
+discrepancia refuerza la necesidad de validar cada cambio en el host real mientras la API
+siga en preview.
 
 La documentación del manifiesto define estos niveles:
 
@@ -322,10 +326,10 @@ pretender que el Widgets Board sea una aplicación web general.
    la aplicación, no en referencias a objetos de callback cuyo tiempo de vida termina al
    finalizar la llamada.
 
-## 9. Recomendación de investigación para el proyecto
+## 9. Recomendación inicial de investigación
 
-No implementar todavía. La siguiente fase, si se retoma esta línea, debería ser una prueba
-aislada y desechable, no una ampliación inmediata del provider de producción:
+La recomendación documental inicial fue avanzar mediante una prueba aislada antes de
+plantear un producto completo:
 
 1. Confirmar en un Windows configurado en España/EEE que el sistema muestra la experiencia
    de feeds y que una app de prueba puede aparecer en el Board.
@@ -337,10 +341,12 @@ aislada y desechable, no una ampliación inmediata del provider de producción:
 6. Solo después decidir entre un feed único, varios feeds o mantener toda la experiencia en
    la app acompañante.
 
-La decisión provisional recomendada es: **mantener los widgets Adaptive Card actuales como
-producto principal; documentar el feed provider como una capacidad experimental EEA para
-una futura investigación; no llamarlo “dashboard propio” hasta que Microsoft publique un
-contrato de navegación de primer nivel o una prueba nativa demuestre algo distinto.**
+Los puntos 1, 2 y 4 ya se han completado con la rebanada vertical descrita en la sección
+12; el punto 3 queda parcialmente cubierto y requiere una matriz sistemática de reapertura
+y deshabilitación. Continúa vigente la decisión de **mantener los widgets Adaptive Card actuales
+como producto independiente; tratar el feed provider como una capacidad experimental EEA;
+y no llamarlo “dashboard propio”**, porque la prueba confirma un feed/panel configurable,
+no una API para crear navegación lateral de primer nivel.
 
 ## 10. Fuentes consultadas
 
@@ -492,6 +498,57 @@ soportada en la documentación del feed provider. Serían una prueba experimenta
 incertidumbres adicionales de ciclo de vida, permisos, carga inicial y comportamiento del
 host; no deben formar parte del diseño garantizado hasta validarlo en el Board real.
 
-La consecuencia de diseño es clara: **si el requisito esencial es un cajón local y rico,
-la app acompañante es la opción sólida; si se acepta un feed web EEA en preview, el feed
-puede ser una excelente vista de tablón con datos locales detrás de un puente controlado.**
+Hay una tercera hipótesis más prometedora que `localhost`: usar un origen HTTPS lógico y
+un `WebRequestFilter` que cubra ese origen, empaquetar `web/dist` en el MSIX e implementar
+`IFeedResourceProvider` para devolver el documento inicial y todos sus assets. El contrato
+oficial dice que las solicitudes coincidentes se redirigen al provider y que se redirigen
+todos los tipos de contenido. La API permite responder con un stream, estado HTTP y
+cabeceras. Lo que la documentación **no confirma** es si el host aplica el filtro también
+a la navegación inicial de `ContentUri`; esa es exactamente la pregunta que debe resolver
+una prueba nativa.
+
+Si funciona, la página conservaría semántica web y un origen HTTPS coherente sin servidor,
+puerto, certificado ni red. El provider se activaría bajo demanda para servir archivos del
+paquete. Si el filtro solo se aplica a recursos secundarios, el documento inicial seguiría
+necesitando una URL alcanzable y esta opción no cumpliría el objetivo completamente local.
+
+La consecuencia de diseño actual es: **el feed puede ser una vista rica con datos locales,
+pero aún hay que demostrar si también puede entregar localmente su propia shell**. Hasta
+esa prueba, GitHub Pages es la referencia soportada de facto y la app acompañante continúa
+siendo la alternativa sólida para una experiencia completamente local y mundial.
+
+## 12. Resultado de la primera implementación
+
+El 18 de septiembre de 2026 se completó una rebanada vertical en un equipo configurado en
+España/EEE y Windows 10.0.26340.9482:
+
+- el paquete se registró y el host catalogó la extensión;
+- **Mis Feed** apareció en la lista de paneles/feed disponibles y pudo habilitarse;
+- el Board cargó la shell Vite publicada en GitHub Pages;
+- `window.chrome.webview.postMessage` entregó un `diagnostics.ping` JSON al provider;
+- el provider validó IDs y protocolo y respondió mediante `SendMessageToContent`;
+- la web correlacionó el `diagnostics.pong` y mostró conexión correcta en 243 ms.
+
+La prueba también descubrió dos hechos que no podían darse por resueltos solo con la
+documentación: la forma exacta del manifiesto aceptada por este host y que el objeto
+`EmbeddedBrowserWebView` admite aquí la sobrecarga de un solo argumento de `postMessage`.
+Estos resultados validan la base remota, no todavía el modo sin red, el comportamiento de
+caché ni la entrega local de recursos.
+
+## 13. Decisión de investigación siguiente
+
+La siguiente investigación prioritaria será una matriz de entrega local que conserve la
+implementación de GitHub Pages como control:
+
+1. medir el comportamiento de la referencia remota con red disponible y sin red;
+2. probar un `ContentUri` de paquete (`ms-appx`/`ms-appx-web`) como sonda corta;
+3. probar un origen HTTPS reservado, `WebRequestFilter` e `IFeedResourceProvider` para
+   servir `index.html`, JavaScript, CSS e imágenes desde el MSIX;
+4. considerar `localhost` únicamente si las rutas anteriores fallan, porque exige un
+   listener y complica ciclo de vida, puertos, seguridad y terminación del proceso;
+5. registrar para cada variante carga inicial, reapertura, caché, puente bidireccional,
+   consumo y comportamiento sin red.
+
+No se diseñarán notas ni persistencia hasta conocer el resultado, porque la forma de
+entregar la shell condiciona CSP, origen, actualización, diagnóstico y arquitectura del
+provider. La hoja de ruta completa está en [Hoja de ruta.md](Hoja%20de%20ruta.md).

@@ -78,13 +78,16 @@ solo se consideran completadas después de observar su resultado en Windows.
 
 ## Estado actual
 
-- Investigación documental inicial incorporada.
-- Primera rebanada vertical implementada en WSL: un feed HTML, ciclo COM y puente de
-  diagnóstico tipado, sin persistencia ni diseño del dashboard.
-- Shell web destinada a GitHub Pages en
+- Investigación documental inicial incorporada y ampliada con resultados nativos.
+- Primera rebanada vertical validada en el Widgets Board: **Mis Feed** aparece en la lista,
+  puede habilitarse y el puente de diagnóstico `web → provider → web` respondió
+  correctamente. Sigue sin persistencia ni diseño del dashboard.
+- Shell web publicada y operativa en GitHub Pages en
   `https://josem404.github.io/Mis_widgets_feed/`.
 - El código y el estado siguen completamente separados de `Proyectos_widgets_WSL`; solo
   se han copiado provisionalmente sus tres assets de identidad visual, sin vínculo en
   compilación o ejecución.
-- Pendiente: publicación de Pages, compilación/despliegue nativo y aceptación visual y
-  funcional en el Widgets Board de Windows.
+- Siguiente hito propuesto: investigar una shell completamente local mediante URI de
+  paquete o `WebRequestFilter` + `IFeedResourceProvider`, conservando Pages como control.
+- Pendiente: matriz sistemática de reapertura/offline, entrega local, capacidades del iframe,
+  persistencia y primera nota.

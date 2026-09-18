@@ -11,8 +11,15 @@ La primera implementación es una rebanada vertical deliberadamente pequeña:
 - un mensaje de diagnóstico `web → provider → web`;
 - sin notas, persistencia, acciones nativas ni interoperabilidad entre repositorios.
 
+La rebanada quedó validada en el Widgets Board real el 18 de septiembre de 2026:
+**Mis Feed** aparece en la lista de feeds, puede habilitarse y la prueba completa
+`web → provider → web` respondió correctamente en 243 ms. Esto demuestra la integración
+actual; no elimina las limitaciones de preview y EEE de la plataforma.
+
 La investigación de partida y las limitaciones de preview/EEE están en
 [Investigación paneles y dashboards del Widgets Board.md](Investigación%20paneles%20y%20dashboards%20del%20Widgets%20Board.md).
+Los siguientes experimentos y criterios de decisión están en
+[Hoja de ruta.md](Hoja%20de%20ruta.md).
 La separación operativa de los dos proyectos está en [AGENTS.md](AGENTS.md).
 
 ## Arquitectura
@@ -125,6 +132,17 @@ El script:
 La automatización no puede confirmar por sí sola el comportamiento del host. La aceptación
 final exige abrir el Board, habilitar **Mis Feed**, pulsar **Probar conexión**, cerrar y
 reabrir el Board, y repetir tras deshabilitar y habilitar el feed.
+
+### Estado de aceptación nativa
+
+| Comprobación | Estado |
+|---|---|
+| Registro MSIX, catálogo de extensiones y self-test | Confirmado |
+| Aparición de **Mis Feed** y control habilitar/deshabilitar | Confirmado |
+| Carga de la shell desde GitHub Pages | Confirmado |
+| `diagnostics.ping` y `diagnostics.pong` correlacionados | Confirmado (243 ms) |
+| Cierre/reapertura, reactivación y ausencia de red | Pendiente de matriz sistemática |
+| Shell empaquetada y servida íntegramente en local | Pendiente de sonda experimental |
 
 ## Diagnóstico
 
