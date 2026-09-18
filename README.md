@@ -1,21 +1,133 @@
 # Mis Widgets Feed
 
-Proyecto paralelo e independiente para investigar e implementar, si resulta
-viable, un Feed Provider de Windows con una experiencia tipo cajón o tablón de
-notas.
+Proyecto paralelo e independiente de `Proyectos_widgets_WSL` para explorar un panel web
+personal dentro del área de feeds del Windows Widgets Board.
 
-La investigación de partida está en [Investigación paneles y dashboards del
-Widgets Board.md](Investigación%20paneles%20y%20dashboards%20del%20Widgets%20Board.md).
-Las instrucciones operativas, la separación de repositorios y la sincronización
-WSL/Windows están en [AGENTS.md](AGENTS.md).
+La primera implementación es una rebanada vertical deliberadamente pequeña:
 
-Este repositorio no sustituye a [Proyectos_widgets_WSL](../Proyectos_widgets_WSL)
-ni forma parte de su código. La interoperabilidad futura con el proyecto de
-widgets se diseñará mediante contratos explícitos para consultar archivos y
-datos de ambos sin compartir accidentalmente el ciclo de vida o el estado.
+- un único feed llamado **Mis Feed**;
+- una shell TypeScript/Vite publicada en GitHub Pages;
+- un provider C# empaquetado como MSIX y activado como servidor COM;
+- un mensaje de diagnóstico `web → provider → web`;
+- sin notas, persistencia, acciones nativas ni interoperabilidad entre repositorios.
 
-## Estado
+La investigación de partida y las limitaciones de preview/EEE están en
+[Investigación paneles y dashboards del Widgets Board.md](Investigación%20paneles%20y%20dashboards%20del%20Widgets%20Board.md).
+La separación operativa de los dos proyectos está en [AGENTS.md](AGENTS.md).
 
-Investigación documental. No hay todavía implementación ni prueba nativa del
-Feed Provider.
+## Arquitectura
+
+```text
+GitHub Pages
+  https://josem404.github.io/Mis_widgets_feed/
+             │ window.chrome.webview.postMessage(JSON)
+             ▼
+Windows Widgets Board
+             │ IFeedProviderMessage.OnMessageReceived
+             ▼
+MisWidgets.Feed.Provider.exe
+             │ FeedManager.SendMessageToContent(JSON)
+             └──────────────────────────────────────► shell web
+```
+
+| Componente | Responsabilidad |
+|---|---|
+| `web/` | Shell accesible, protocolo cliente y build estático. |
+| `src/MisWidgets.Feed.Core/` | Contrato JSON y coordinación pura, sin dependencias de Windows. |
+| `src/MisWidgets.Feed.Provider/` | Activación COM, callbacks de feeds, logs y self-test empaquetado. |
+| `tests/MisWidgets.Feed.Tests/` | Pruebas del protocolo y del ciclo de vida ejecutables desde WSL. |
+| `tools/` | Verificación de Pages y despliegue nativo conservador. |
+
+Los tres iconos MSIX iniciales son copias estáticas y provisionales de la identidad visual
+de Mis Widgets. No crean una dependencia de código ni de ejecución entre repositorios; se
+reemplazarán cuando se diseñe una identidad específica para el feed.
+
+## Protocolo v1
+
+La web solo puede enviar `diagnostics.ping`. El provider valida versión, tipo, UUID,
+payload, IDs registrados y un límite de 8 KiB antes de responder con
+`diagnostics.pong` o `diagnostics.error`. No existe ningún comando genérico que pueda
+convertirse en una operación del sistema.
+
+## Desarrollo web
+
+Requiere Node.js 24.
+
+```bash
+cd web
+npm ci
+npm test
+npm run build
+```
+
+Vite genera `web/dist` con base `/Mis_widgets_feed/`. Fuera del Widgets Board, la página
+muestra **Modo navegador** y mantiene deshabilitada la prueba nativa.
+
+## GitHub y Pages
+
+El repositorio conserva dos remotos con funciones distintas:
+
+```text
+origin  -> C:\Users\newsy\Proyectos Feed     (sincronización WSL → Windows)
+github  -> https://github.com/josem404/Mis_widgets_feed.git
+```
+
+La publicación se activa con un push explícito:
+
+```bash
+git push github master
+```
+
+En GitHub, seleccionar **Settings → Pages → Build and deployment → GitHub Actions**.
+El workflow prueba y compila la web antes de publicar exclusivamente `web/dist`. El
+provider no debe desplegarse hasta que esta comprobación funcione:
+
+```powershell
+& '.\tools\verify-pages.ps1'
+```
+
+## Pruebas .NET desde WSL
+
+El núcleo usa .NET 8 para que sus pruebas puedan ejecutarse en la copia canónica WSL:
+
+```bash
+dotnet test tests/MisWidgets.Feed.Tests/MisWidgets.Feed.Tests.csproj
+```
+
+El ejecutable MSIX sigue usando .NET 10 y Windows App SDK 2.4.0; su compilación y
+ejecución solo se validan en Windows.
+
+## Flujo nativo WSL → Windows
+
+No sincronizar hasta que ambos árboles estén limpios y exista un commit en WSL. Después,
+desde `C:\Users\newsy\Proyectos Feed`:
+
+```powershell
+& '.\tools\validate-and-deploy.ps1' -RestartWidgetHost
+```
+
+El script:
+
+1. valida ambos árboles y sincroniza el commit WSL hacia Windows;
+2. verifica que GitHub Pages devuelve la shell correcta sin cabeceras anti-frame;
+3. ejecuta las pruebas .NET;
+4. compila con MSBuild de Visual Studio;
+5. registra una actualización MSIX en una ranura alterna, sin `Remove-AppxPackage`;
+6. ejecuta `--selftest` bajo la identidad del paquete.
+
+La automatización no puede confirmar por sí sola el comportamiento del host. La aceptación
+final exige abrir el Board, habilitar **Mis Feed**, pulsar **Probar conexión**, cerrar y
+reabrir el Board, y repetir tras deshabilitar y habilitar el feed.
+
+## Diagnóstico
+
+El provider escribe un log rotatorio de hasta 1 MiB en:
+
+```text
+%LOCALAPPDATA%\Packages\<PackageFamilyName>\LocalState\logs\feed.log
+```
+
+El self-test escribe `LocalState\selftest.txt`. Los objetos recibidos en callbacks WinRT no
+se conservan fuera de la llamada y el proceso permanece bloqueado sin consumo activo hasta
+que el host deshabilita todos los feeds del provider.
 

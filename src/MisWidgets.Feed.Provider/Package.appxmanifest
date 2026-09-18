@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 com rescap">
+
+  <Identity
+    Name="MisWidgets.Feed.Provider"
+    Publisher="CN=MisWidgets Feed Dev"
+    Version="0.1.0.0" />
+
+  <Properties>
+    <DisplayName>Mis Widgets Feed</DisplayName>
+    <PublisherDisplayName>MisWidgets Feed Dev</PublisherDisplayName>
+    <Logo>Images\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22621.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="es-es" />
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App" Executable="MisWidgets.Feed.Provider.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Mis Widgets Feed"
+        Description="Proveedor experimental de un panel web para Windows Widgets"
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png">
+        <uap:DefaultTile />
+      </uap:VisualElements>
+
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer
+              Executable="MisWidgets.Feed.Provider.exe"
+              Arguments="-RegisterProcessAsComServer"
+              DisplayName="Mis Widgets Feed Provider">
+              <com:Class
+                Id="a5194794-89bf-4fd1-b5c4-8d1fb860992c"
+                DisplayName="Mis Widgets Feed Provider" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+
+        <uap3:Extension Category="windows.appExtension">
+          <uap3:AppExtension
+            Name="com.microsoft.windows.widgets.feeds"
+            DisplayName="Mis Widgets Feed"
+            Id="MisWidgetsFeedAppExtension"
+            PublicFolder="Public">
+            <uap3:Properties>
+              <FeedProvider
+                Id="MisWidgetsFeedProvider"
+                DisplayName="Mis Widgets Feed"
+                Description="Panel web personal y extensible"
+                Icon="ms-appx:Images\StoreLogo.png">
+                <Activation>
+                  <CreateInstance ClassId="a5194794-89bf-4fd1-b5c4-8d1fb860992c" />
+                </Activation>
+                <Definitions>
+                  <Definition
+                    Id="MisWidgets_Dashboard_Feed"
+                    DisplayName="Mis Feed"
+                    Description="Base experimental del panel personal"
+                    ContentUri="https://josem404.github.io/Mis_widgets_feed/"
+                    Icon="ms-appx:Images\StoreLogo.png" />
+                </Definitions>
+              </FeedProvider>
+            </uap3:Properties>
+          </uap3:AppExtension>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

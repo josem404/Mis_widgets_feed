@@ -1,0 +1,32 @@
+## .NET / Visual Studio
+bin/
+obj/
+.vs/
+.mono/
+*.user
+*.suo
+*.userprefs
+
+## MSIX / packaging
+deploy/
+AppPackages/
+BundleArtifacts/
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.appxupload
+*.msixupload
+*.pfx
+*.cer
+Generated Files/
+
+## Web
+web/node_modules/
+web/dist/
+web/coverage/
+
+## Diagnostics
+*.log
+*.trx
+TestResults/

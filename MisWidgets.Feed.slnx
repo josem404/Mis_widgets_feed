@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MisWidgets.Feed.Core/MisWidgets.Feed.Core.csproj" />
+    <Project Path="src/MisWidgets.Feed.Provider/MisWidgets.Feed.Provider.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MisWidgets.Feed.Tests/MisWidgets.Feed.Tests.csproj" />
+  </Folder>
+</Solution>

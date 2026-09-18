@@ -79,9 +79,12 @@ solo se consideran completadas después de observar su resultado en Windows.
 ## Estado actual
 
 - Investigación documental inicial incorporada.
-- Sin implementación del Feed Provider.
-- Sin cambios al código de `Proyectos_widgets_WSL` más allá de la documentación
-  comprometida de la investigación.
-- Pendiente: prueba mínima aislada en un Windows elegible para EEA, con un único
-  feed HTML, ciclo COM, pivot, ciclo de vida y puente de mensajes.
-
+- Primera rebanada vertical implementada en WSL: un feed HTML, ciclo COM y puente de
+  diagnóstico tipado, sin persistencia ni diseño del dashboard.
+- Shell web destinada a GitHub Pages en
+  `https://josem404.github.io/Mis_widgets_feed/`.
+- El código y el estado siguen completamente separados de `Proyectos_widgets_WSL`; solo
+  se han copiado provisionalmente sus tres assets de identidad visual, sin vínculo en
+  compilación o ejecución.
+- Pendiente: publicación de Pages, compilación/despliegue nativo y aceptación visual y
+  funcional en el Widgets Board de Windows.

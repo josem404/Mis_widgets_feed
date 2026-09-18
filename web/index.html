@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws: wss:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Mis Feed</title>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">MIS WIDGETS</p>
+          <h1>Mis Feed</h1>
+          <p class="subtitle">Base experimental del panel personal.</p>
+        </div>
+        <span id="host-mode" class="mode" aria-label="Estado del host">Detectando host…</span>
+      </header>
+
+      <section class="diagnostic" aria-labelledby="diagnostic-title">
+        <div>
+          <p class="section-label">CONEXIÓN NATIVA</p>
+          <h2 id="diagnostic-title">Puente del provider</h2>
+          <p class="description">
+            Esta prueba verifica que el contenido web puede hablar con el provider sin exponer
+            comandos del sistema.
+          </p>
+        </div>
+
+        <button id="ping-button" type="button">Probar conexión</button>
+
+        <div id="result" class="result" role="status" aria-live="polite">
+          Aún no se ha enviado ninguna prueba.
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
