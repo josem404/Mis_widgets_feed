@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Windows.Widgets.Feeds.Providers;
 using MisWidgets.Feed.Core;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.AppExtensions;
 using Windows.Storage;
 
 namespace MisWidgets.Feed.Provider.Diagnostics;
@@ -19,6 +20,7 @@ internal static class SelfTest
         Check("Identidad del paquete", CheckPackageIdentity, lines, problems);
         Check("LocalState escribible", CheckLocalState, lines, problems);
         Check("PublicFolder empaquetada", CheckPublicFolder, lines, problems);
+        Check("Catalogo de extensiones", CheckAppExtensionCatalog, lines, problems);
         Check("Protocolo diagnostics.ping", CheckProtocol, lines, problems);
         Check("FeedManager disponible", CheckFeedManager, lines, problems);
 
@@ -75,6 +77,31 @@ internal static class SelfTest
         }
 
         return path;
+    }
+
+    private static string CheckAppExtensionCatalog()
+    {
+        AppExtensionCatalog catalog = AppExtensionCatalog.Open(ProviderConstants.AppExtensionName);
+        IReadOnlyList<AppExtension> extensions = catalog.FindAllAsync().AsTask().GetAwaiter().GetResult();
+        AppExtension[] ownExtensions = extensions
+            .Where(extension => string.Equals(
+                extension.Package.Id.Name,
+                FeedIdentifiers.PackageName,
+                StringComparison.Ordinal))
+            .ToArray();
+
+        if (ownExtensions.Length != 1)
+        {
+            string packages = string.Join(
+                ", ",
+                extensions.Select(extension => extension.Package.Id.Name).Distinct());
+            throw new InvalidOperationException(
+                $"Se esperaban 1 extensiones propias y se encontraron {ownExtensions.Length}. " +
+                $"Paquetes visibles: {packages}.");
+        }
+
+        AppExtension own = ownExtensions[0];
+        return $"{own.Id}; paquete={own.Package.Id.Name}; total={extensions.Count}";
     }
 
     private static string CheckProtocol()

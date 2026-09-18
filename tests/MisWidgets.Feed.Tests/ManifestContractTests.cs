@@ -13,10 +13,14 @@ public sealed class ManifestContractTests
         XDocument document = XDocument.Load(path);
 
         XElement identity = RequiredElement(document, "Identity");
+        XElement appExtension = RequiredElement(document, "AppExtension");
         XElement provider = RequiredElement(document, "FeedProvider");
         XElement definition = RequiredElement(document, "Definition");
 
         Assert.Equal(FeedIdentifiers.PackageName, RequiredAttribute(identity, "Name"));
+        Assert.Equal(
+            "com.microsoft.windows.widgets.feeds",
+            RequiredAttribute(appExtension, "Name"));
         Assert.Equal(FeedIdentifiers.FeedProviderId, RequiredAttribute(provider, "Id"));
         Assert.Equal(FeedIdentifiers.FeedDefinitionId, RequiredAttribute(definition, "Id"));
         Assert.Equal(
