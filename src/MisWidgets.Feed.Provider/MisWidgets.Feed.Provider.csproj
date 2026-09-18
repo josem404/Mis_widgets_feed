@@ -41,6 +41,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Images\**" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Public\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

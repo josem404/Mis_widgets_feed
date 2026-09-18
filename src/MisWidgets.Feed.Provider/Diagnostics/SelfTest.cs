@@ -18,6 +18,7 @@ internal static class SelfTest
         var problems = new List<string>();
         Check("Identidad del paquete", CheckPackageIdentity, lines, problems);
         Check("LocalState escribible", CheckLocalState, lines, problems);
+        Check("PublicFolder empaquetada", CheckPublicFolder, lines, problems);
         Check("Protocolo diagnostics.ping", CheckProtocol, lines, problems);
         Check("FeedManager disponible", CheckFeedManager, lines, problems);
 
@@ -55,6 +56,25 @@ internal static class SelfTest
         File.WriteAllText(path, "ok");
         File.Delete(path);
         return ApplicationData.Current.LocalFolder.Path;
+    }
+
+    private static string CheckPublicFolder()
+    {
+        string path = Path.Combine(
+            Package.Current.InstalledLocation.Path,
+            "Public",
+            "feed-provider.json");
+        using JsonDocument descriptor = JsonDocument.Parse(File.ReadAllText(path));
+
+        string providerId = descriptor.RootElement.GetProperty("providerId").GetString() ?? string.Empty;
+        string feedId = descriptor.RootElement.GetProperty("feedIds")[0].GetString() ?? string.Empty;
+        if (!string.Equals(providerId, FeedIdentifiers.FeedProviderId, StringComparison.Ordinal) ||
+            !string.Equals(feedId, FeedIdentifiers.FeedDefinitionId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("El descriptor publico no coincide con el manifiesto.");
+        }
+
+        return path;
     }
 
     private static string CheckProtocol()

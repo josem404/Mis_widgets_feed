@@ -23,6 +23,9 @@
     <None Include="..\..\src\MisWidgets.Feed.Provider\Package.appxmanifest"
           Link="Package.appxmanifest"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\MisWidgets.Feed.Provider\Public\feed-provider.json"
+          Link="Public\feed-provider.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

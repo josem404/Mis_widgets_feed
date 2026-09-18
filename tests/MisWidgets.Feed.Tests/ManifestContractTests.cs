@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using System.Text.Json;
 using MisWidgets.Feed.Core;
 
 namespace MisWidgets.Feed.Tests;
@@ -34,6 +35,29 @@ public sealed class ManifestContractTests
 
         Assert.True(Guid.TryParse(comClassId, out _));
         Assert.Equal(comClassId, activationClassId, ignoreCase: true);
+    }
+
+    [Fact]
+    public void Manifest_PublicFolderExistsAndIdentifiesTheSameFeed()
+    {
+        string manifestPath = Path.Combine(AppContext.BaseDirectory, "Package.appxmanifest");
+        XDocument document = XDocument.Load(manifestPath);
+        XElement appExtension = RequiredElement(document, "AppExtension");
+
+        string publicFolder = RequiredAttribute(appExtension, "PublicFolder");
+        string descriptorPath = Path.Combine(
+            AppContext.BaseDirectory,
+            publicFolder,
+            "feed-provider.json");
+        Assert.True(File.Exists(descriptorPath), $"No existe {descriptorPath}.");
+
+        using JsonDocument descriptor = JsonDocument.Parse(File.ReadAllText(descriptorPath));
+        Assert.Equal(
+            FeedIdentifiers.FeedProviderId,
+            descriptor.RootElement.GetProperty("providerId").GetString());
+        Assert.Equal(
+            FeedIdentifiers.FeedDefinitionId,
+            descriptor.RootElement.GetProperty("feedIds")[0].GetString());
     }
 
     private static XElement RequiredElement(XDocument document, string localName) =>

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "providerId": "MisWidgetsFeedProvider",
+  "feedIds": [
+    "MisWidgets_Dashboard_Feed"
+  ]
+}
