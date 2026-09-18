@@ -10,6 +10,11 @@ public static class Program
     [MTAThread]
     public static int Main(string[] args)
     {
+        // Tanto la activacion COM como --selftest usan proyecciones WinRT. En particular,
+        // FeedManager.GetDefault() necesita que CsWinRT haya instalado sus wrappers antes de
+        // ejecutar cualquiera de los dos caminos.
+        WinRT.ComWrappersSupport.InitializeComWrappers();
+
         if (args.Contains(ProviderConstants.SelfTestArgument, StringComparer.OrdinalIgnoreCase))
         {
             return SelfTest.Run();
@@ -25,7 +30,6 @@ public static class Program
 
         try
         {
-            WinRT.ComWrappersSupport.InitializeComWrappers();
             ProviderProcess.Attach(lifetime);
 
             var factory = new FeedProviderFactory<FeedProvider>();
