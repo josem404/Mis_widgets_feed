@@ -5,7 +5,7 @@ interface FeedWebViewMessageEvent {
 }
 
 interface FeedWebViewHost {
-  postMessage(message: string, targetOrigin?: string): void;
+  postMessage(message: string): void;
   addEventListener(type: "message", listener: (event: FeedWebViewMessageEvent) => void): void;
   removeEventListener(type: "message", listener: (event: FeedWebViewMessageEvent) => void): void;
 }

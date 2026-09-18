@@ -4,11 +4,11 @@ import { FeedBridge, type FeedWebViewHost, type FeedWebViewMessageEvent } from "
 const requestId = "169f4214-8e67-4f08-9ee7-d0706ab3adf4";
 
 class FakeHost implements FeedWebViewHost {
-  readonly messages: Array<{ message: string; targetOrigin?: string }> = [];
+  readonly messages: string[] = [];
   listener?: (event: FeedWebViewMessageEvent) => void;
 
-  postMessage(message: string, targetOrigin?: string): void {
-    this.messages.push({ message, targetOrigin });
+  postMessage(message: string): void {
+    this.messages.push(message);
   }
 
   addEventListener(_type: "message", listener: (event: FeedWebViewMessageEvent) => void): void {
@@ -31,15 +31,14 @@ afterEach(() => {
 });
 
 describe("FeedBridge", () => {
-  it("sends a typed ping to the exact HTTPS origin", async () => {
+  it("sends a serialized ping through the one-argument host overload", async () => {
     const host = new FakeHost();
     const bridge = createBridge(host);
 
     const pending = bridge.ping();
 
     expect(host.messages).toHaveLength(1);
-    expect(host.messages[0]?.targetOrigin).toBe("https://example.github.io");
-    expect(JSON.parse(host.messages[0]!.message)).toEqual({
+    expect(JSON.parse(host.messages[0]!)).toEqual({
       version: 1,
       type: "diagnostics.ping",
       requestId,

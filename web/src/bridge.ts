@@ -6,7 +6,7 @@ export interface FeedWebViewMessageEvent {
 }
 
 export interface FeedWebViewHost {
-  postMessage(message: string, targetOrigin?: string): void;
+  postMessage(message: string): void;
   addEventListener(type: "message", listener: (event: FeedWebViewMessageEvent) => void): void;
   removeEventListener(type: "message", listener: (event: FeedWebViewMessageEvent) => void): void;
 }
@@ -32,20 +32,18 @@ interface FeedBridgeOptions {
 
 export class FeedBridge {
   readonly #host: FeedWebViewHost;
-  readonly #targetOrigin: string;
   readonly #now: () => Date;
   readonly #createRequestId: () => string;
   readonly #timeoutMilliseconds: number;
   readonly #pending = new Map<string, PendingRequest>();
   readonly #messageListener: (event: FeedWebViewMessageEvent) => void;
 
-  constructor(host: FeedWebViewHost, targetOrigin: string, options: FeedBridgeOptions = {}) {
-    if (!targetOrigin.startsWith("https://")) {
+  constructor(host: FeedWebViewHost, contentOrigin: string, options: FeedBridgeOptions = {}) {
+    if (!contentOrigin.startsWith("https://")) {
       throw new Error("El bridge exige un origen HTTPS explicito.");
     }
 
     this.#host = host;
-    this.#targetOrigin = targetOrigin;
     this.#now = options.now ?? (() => new Date());
     this.#createRequestId = options.createRequestId ?? (() => crypto.randomUUID());
     this.#timeoutMilliseconds = options.timeoutMilliseconds ?? 5_000;
@@ -81,7 +79,9 @@ export class FeedBridge {
       });
 
       try {
-        this.#host.postMessage(request, this.#targetOrigin);
+        // EmbeddedBrowserWebView expone una unica sobrecarga. A diferencia de
+        // window.postMessage, este metodo no admite targetOrigin como segundo argumento.
+        this.#host.postMessage(request);
       } catch (error) {
         clearTimeout(timeout);
         this.#pending.delete(requestId);
