@@ -85,8 +85,17 @@ internal static class SelfTest
 
     private static string CheckFeedManager()
     {
-        FeedManager manager = FeedManager.GetDefault();
-        return $"Providers habilitados: {manager.GetEnabledFeedProviders().Length}";
+        FeedManager? manager = FeedManager.GetDefault();
+        if (manager is null)
+        {
+            throw new InvalidOperationException("FeedManager.GetDefault devolvio null.");
+        }
+
+        // En la implementacion preview, antes de que el usuario habilite el primer feed la
+        // proyeccion puede devolver null aunque la firma publica sea FeedProviderInfo[]. Es el
+        // equivalente practico de una coleccion vacia, no un fallo de activacion de la API.
+        FeedProviderInfo[]? providers = manager.GetEnabledFeedProviders();
+        return $"Providers habilitados: {providers?.Length ?? 0}";
     }
 
     private static void Check(

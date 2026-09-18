@@ -62,7 +62,20 @@ public static class Program
 
     private static void LogExistingFeeds()
     {
-        IReadOnlyList<FeedProviderInfo> providers = FeedManager.GetDefault().GetEnabledFeedProviders();
+        FeedManager? manager = FeedManager.GetDefault();
+        if (manager is null)
+        {
+            LocalLog.Warn("FeedManager.GetDefault devolvio null al iniciar.");
+            return;
+        }
+
+        IReadOnlyList<FeedProviderInfo>? providers = manager.GetEnabledFeedProviders();
+        if (providers is null)
+        {
+            LocalLog.Info("No hay providers habilitados al iniciar.");
+            return;
+        }
+
         foreach (FeedProviderInfo provider in providers)
         {
             string feedIds = string.Join(",", provider.EnabledFeedDefinitionIds ?? []);
